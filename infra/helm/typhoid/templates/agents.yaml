@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-agents
+  labels: { app.kubernetes.io/name: agents, app.kubernetes.io/instance: {{ .Release.Name }} }
+spec:
+  replicas: {{ .Values.agents.replicas }}
+  selector: { matchLabels: { app.kubernetes.io/name: agents, app.kubernetes.io/instance: {{ .Release.Name }} } }
+  template:
+    metadata: { labels: { app.kubernetes.io/name: agents, app.kubernetes.io/instance: {{ .Release.Name }} } }
+    spec:
+      serviceAccountName: {{ .Release.Name }}-agents
+      securityContext: { runAsNonRoot: {{ .Values.podSecurity.runAsNonRoot }}, seccompProfile: { type: RuntimeDefault } }
+      containers:
+        - name: agents
+          image: {{ include "typhoid.image" (dict "root" . "svc" .Values.agents) }}
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          securityContext: { readOnlyRootFilesystem: {{ .Values.podSecurity.readOnlyRootFilesystem }}, allowPrivilegeEscalation: false, capabilities: { drop: [ALL] } }
+          envFrom: [ { secretRef: { name: {{ .Values.existingSecret }} } } ]
+          env:
+            {{- include "typhoid.env" . | nindent 12 }}
+          resources: { requests: { cpu: 250m, memory: 256Mi }, limits: { cpu: "1", memory: 1Gi } }
+          volumeMounts: [ { name: tmp, mountPath: /tmp } ]
+      volumes: [ { name: tmp, emptyDir: {} } ]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata: { name: {{ .Release.Name }}-agents }

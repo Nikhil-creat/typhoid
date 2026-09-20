@@ -1,0 +1,17 @@
+{{- if .Values.agents.autoscaling.enabled }}
+# Scale the swarm on event-bus lag (needs KEDA). Idle = few pods; a big PR = burst of agents.
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata: { name: {{ .Release.Name }}-agents }
+spec:
+  scaleTargetRef: { name: {{ .Release.Name }}-agents }
+  minReplicaCount: {{ .Values.agents.autoscaling.min }}
+  maxReplicaCount: {{ .Values.agents.autoscaling.max }}
+  triggers:
+    - type: kafka
+      metadata:
+        bootstrapServers: {{ .Values.externalDeps.kafka.bootstrap | quote }}
+        consumerGroup: swarm
+        topic: typhoid.runs
+        lagThreshold: {{ .Values.agents.autoscaling.kafkaLagTarget | quote }}
+{{- end }}

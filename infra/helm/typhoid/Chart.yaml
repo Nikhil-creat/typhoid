@@ -1,0 +1,6 @@
+apiVersion: v2
+name: typhoid
+description: Autonomous testing, chaos engineering and self-healing CI/CD platform
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

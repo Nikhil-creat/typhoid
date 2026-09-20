@@ -1,0 +1,16 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r backend/requirements.txt -r agents/requirements.txt pytest
+      - run: cd agents && pytest -q
+  typhoid-selftest:   # TYPHOID tests itself: dogfooding the swarm on PRs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "POST /webhooks/github with this PR -> swarm runs autonomous regression"

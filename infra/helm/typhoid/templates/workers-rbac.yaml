@@ -1,0 +1,13 @@
+# Agents create short-lived Jobs (one sandbox per test session) in a dedicated namespace.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: { name: {{ .Release.Name }}-worker-launcher }
+rules:
+  - { apiGroups: ["batch"], resources: ["jobs"], verbs: ["create", "get", "list", "delete"] }
+  - { apiGroups: [""],      resources: ["pods", "pods/log", "pods/exec"], verbs: ["get", "list", "create"] }
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: { name: {{ .Release.Name }}-worker-launcher }
+subjects: [ { kind: ServiceAccount, name: {{ .Release.Name }}-agents } ]
+roleRef: { apiGroup: rbac.authorization.k8s.io, kind: Role, name: {{ .Release.Name }}-worker-launcher }

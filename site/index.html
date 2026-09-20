@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Typhoid: autonomous testing that fixes what it breaks</title>
+<meta name="description" content="A 3D, agentic testing swarm that plans tests, breaks your app on purpose, and ships verified fixes. Live demo runs in your browser.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧫</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+               "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
+</script>
+</head>
+<body>
+<div class="stage-wrap"><canvas id="stage" role="img" aria-label="3D petri dish showing nine AI agents, a knowledge graph and test sandboxes. Drag to orbit, scroll to zoom."></canvas></div>
+<p id="nogl" class="nogl" hidden>Your browser can't show the 3D view. The full simulation still runs in the panels.</p>
+
+<header class="top">
+  <h1>Typhoid</h1>
+  <p class="tag">Nine agents plan, break, judge and repair your app. <span class="demo">Demo: simulated in your browser</span></p>
+  <a class="gh" href="https://github.com/Nikhil-creat" rel="noopener">GitHub</a>
+</header>
+
+<div class="col left">
+  <section class="card" id="p-studio" aria-labelledby="h-studio">
+    <h2 id="h-studio">Test Studio</h2>
+    <label>User story<textarea id="story" rows="3">As a shopper, I can pay with an expired card and see a clear error.</textarea></label>
+    <label>UI mockup (optional)<input type="file" id="mockup" accept="image/*"></label>
+    <fieldset><legend>Break it on purpose</legend>
+      <label class="chk"><input type="checkbox" name="fault" value="latency" checked>Slow network</label>
+      <label class="chk"><input type="checkbox" name="fault" value="packet_loss">Dropped packets</label>
+      <label class="chk"><input type="checkbox" name="fault" value="cpu_throttle">CPU starvation</label>
+      <label class="chk"><input type="checkbox" name="fault" value="db_outage">Database outage</label>
+      <label>Intensity <output id="intensityOut"></output><input type="range" id="intensity" min="0.05" max="0.3" step="0.05" value="0.2"></label>
+    </fieldset>
+    <fieldset><legend>How much can it do alone?</legend>
+      <label class="chk"><input type="radio" name="autonomy" value="observe">Observe: report only</label>
+      <label class="chk"><input type="radio" name="autonomy" value="review" checked>Review: PR, human approves</label>
+      <label class="chk"><input type="radio" name="autonomy" value="autopilot">Autopilot: merge verified, low-risk fixes</label>
+    </fieldset>
+    <label class="chk"><input type="checkbox" id="seedBug" checked>Seed a bug in the demo shop</label>
+    <div class="row">
+      <button id="start" class="primary">Start run</button>
+      <button id="pause" disabled aria-pressed="false">Pause</button>
+      <button id="kill" class="danger" disabled>Kill</button>
+      <select id="speed" aria-label="Simulation speed"><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select>
+    </div>
+  </section>
+  <section class="card" id="p-stats" aria-labelledby="h-stats">
+    <h2 id="h-stats">Run metrics</h2>
+    <dl class="stats">
+      <dt>Status</dt><dd id="m-status" data-s="idle">idle</dd>
+      <dt>Regression risk</dt><dd><span class="bar"><i id="m-risk"></i></span> <span id="m-risk-t">–</span></dd>
+      <dt>Tests</dt><dd id="m-tests">0 passed · 0 failed</dd>
+      <dt>Knowledge graph</dt><dd id="m-kg">12 nodes</dd>
+      <dt>Patch attempts</dt><dd id="m-attempt">–</dd>
+      <dt>LLM spend</dt><dd id="m-cost">$0.000 of $500</dd>
+    </dl>
+  </section>
+</div>
+
+<div class="col right">
+  <section class="card" id="p-feed" aria-labelledby="h-feed">
+    <h2 id="h-feed">Live reasoning</h2>
+    <ol id="feed" aria-live="polite"></ol>
+  </section>
+  <section class="card" id="p-patch" aria-labelledby="h-patch">
+    <h2 id="h-patch">Patch review</h2>
+    <p id="patch-empty">No patch yet. When the swarm finds and fixes a bug, it appears here.</p>
+    <div id="patch-body" hidden>
+      <h3 id="patch-title"></h3><p id="patch-meta"></p>
+      <pre id="diff" tabindex="0" aria-label="Proposed diff"></pre>
+      <div class="row"><button id="reject">Reject</button><button id="approve" class="primary">Approve and merge</button></div>
+      <p id="decision" role="status"></p>
+    </div>
+  </section>
+</div>
+
+<nav class="dock" aria-label="Panels">
+  <button data-open="p-studio" aria-expanded="false">Studio</button><button data-open="p-feed" aria-expanded="false">Live</button>
+  <button data-open="p-patch" aria-expanded="false">Patch</button><button data-open="p-stats" aria-expanded="false">Stats</button>
+</nav>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

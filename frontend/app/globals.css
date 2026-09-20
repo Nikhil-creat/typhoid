@@ -1,0 +1,7 @@
+@tailwind base; @tailwind components; @tailwind utilities;
+:root { color-scheme: light; }
+body { @apply bg-agar text-ink font-body antialiased; }
+:focus-visible { outline: 2px solid #1E6F5C; outline-offset: 2px; }
+@keyframes bloom { 0%,100% { transform: scale(1); opacity:.9 } 50% { transform: scale(1.12); opacity:1 } }
+.colony-active { animation: bloom 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@media (prefers-reduced-motion: reduce) { .colony-active { animation: none; } }

@@ -1,0 +1,45 @@
+global:
+  imageRegistry: ghcr.io/your-org
+  imagePullPolicy: IfNotPresent
+  domain: typhoid.example.com
+
+frontend:  { image: typhoid/frontend, tag: latest, replicas: 2, port: 3000 }
+backend:   { image: typhoid/backend,  tag: latest, replicas: 3, port: 8000,
+             autoscaling: { enabled: true, min: 3, max: 20, cpu: 70 } }
+agents:
+  image: typhoid/agents
+  tag: latest
+  replicas: 2
+  autoscaling: { enabled: true, min: 2, max: 50, kafkaLagTarget: 100 }   # scale on bus lag via KEDA
+  runtime: k8s                                                           # workers run as Jobs, not docker.sock
+
+config:
+  busBackend: kafka
+  workflowEngine: langgraph
+  autonomyLevel: review
+  chaosMaxBlastRadius: "0.3"
+  chaosAllowProduction: "false"
+  workerTtlSeconds: "900"
+
+# Never put secrets here. Use ExternalSecrets / Vault Agent Injector.
+existingSecret: typhoid-secrets
+
+externalDeps:            # point at managed services in prod
+  postgres: { host: "" }
+  kafka:    { bootstrap: "" }
+  redis:    { url: "" }
+  qdrant:   { url: "" }
+  neo4j:    { uri: "" }
+  vault:    { addr: "" }
+
+ingress:
+  enabled: true
+  className: nginx
+  tls: true
+
+networkPolicy:
+  enabled: true          # workers may reach only the target under test; default-deny everything else
+
+podSecurity:
+  runAsNonRoot: true
+  readOnlyRootFilesystem: true

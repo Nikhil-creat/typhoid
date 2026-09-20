@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-backend
+  labels: { app.kubernetes.io/name: backend, app.kubernetes.io/instance: {{ .Release.Name }} }
+spec:
+  replicas: {{ .Values.backend.replicas }}
+  selector: { matchLabels: { app.kubernetes.io/name: backend, app.kubernetes.io/instance: {{ .Release.Name }} } }
+  template:
+    metadata: { labels: { app.kubernetes.io/name: backend, app.kubernetes.io/instance: {{ .Release.Name }} } }
+    spec:
+      serviceAccountName: {{ .Release.Name }}-backend
+      securityContext: { runAsNonRoot: {{ .Values.podSecurity.runAsNonRoot }}, seccompProfile: { type: RuntimeDefault } }
+      containers:
+        - name: backend
+          image: {{ include "typhoid.image" (dict "root" . "svc" .Values.backend) }}
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          securityContext: { readOnlyRootFilesystem: {{ .Values.podSecurity.readOnlyRootFilesystem }}, allowPrivilegeEscalation: false, capabilities: { drop: [ALL] } }
+          envFrom: [ { secretRef: { name: {{ .Values.existingSecret }} } } ]
+          env:
+            {{- include "typhoid.env" . | nindent 12 }}
+          resources: { requests: { cpu: 250m, memory: 256Mi }, limits: { cpu: "1", memory: 1Gi } }
+          volumeMounts: [ { name: tmp, mountPath: /tmp } ]
+      volumes: [ { name: tmp, emptyDir: {} } ]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata: { name: {{ .Release.Name }}-backend }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: {{ .Release.Name }}-backend }
+spec:
+  selector: { app.kubernetes.io/name: backend, app.kubernetes.io/instance: {{ .Release.Name }} }
+  ports: [ { port: 80, targetPort: {{ .Values.backend.port }} } ]
+---
+{{- if .Values.backend.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata: { name: {{ .Release.Name }}-backend }
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: {{ .Release.Name }}-backend }
+  minReplicas: {{ .Values.backend.autoscaling.min }}
+  maxReplicas: {{ .Values.backend.autoscaling.max }}
+  metrics: [ { type: Resource, resource: { name: cpu, target: { type: Utilization, averageUtilization: {{ .Values.backend.autoscaling.cpu }} } } } ]
+{{- end }}
