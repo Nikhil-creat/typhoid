@@ -1,6 +1,19 @@
 # TYPHOID
 Autonomous testing, chaos engineering and self-healing CI/CD. A swarm of AI agents plans tests, breaks your app on purpose, judges what it sees, writes the fix, **proves the fix in a fresh sandbox**, then opens the pull request.
 
+## Author
+# **★NIKHIL CHARY SRIRAMOJU★**
+BTech CSE (Final Year)
+
+- GitHub: [Nikhil-creat](https://github.com/Nikhil-creat)
+- LinkedIn: [nikhil-chary-sriramoju](https://in.linkedin.com/in/nikhil-chary-sriramoju-95041b38a)
+- Email: sriramojunikhil66@gmail.com
+- Instagram: [@nikhil__sriramoju](https://www.instagram.com/nikhil__sriramoju)
+- Facebook: [Profile](https://www.facebook.com/profile.php?id=100079201124141)
+
+  
+
+
 ## Live 3D demo (GitHub Pages)
 The `site/` folder is a static, fully 3D experience (Three.js): a petri dish holding the nine agents, an event bus, a growing knowledge graph, chaos sandboxes that shake under fault injection, a CNN visual-diff panel, and a patch that turns green when verified. Drive it from the Test Studio and watch the reflexion loop, autonomy gates and kill-switch work.
 
@@ -58,15 +71,4 @@ This is a production-shaped **blueprint**, not a tested release. Before real use
 - Run chaos against staging, never production (blocked by default). Autopilot merges should stay off until you trust the verifier on your codebase.
 - Install shadcn components with `npx shadcn@latest add button card dialog` as you extend the UI.
 
-## Author
 
-**★NIKHIL CHARY SRIRAMOJU★**
-BTech CSE (Final Year)
-
-- GitHub: [Nikhil-creat](https://github.com/Nikhil-creat)
-- LinkedIn: [nikhil-chary-sriramoju](https://in.linkedin.com/in/nikhil-chary-sriramoju-95041b38a)
-- Email: sriramojunikhil66@gmail.com
-- Instagram: [@nikhil__sriramoju](https://www.instagram.com/nikhil__sriramoju)
-- Facebook: [Profile](https://www.facebook.com/profile.php?id=100079201124141)
-
-  
